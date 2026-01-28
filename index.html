@@ -25,7 +25,7 @@
             }
         };
     </script>
-    <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body class="theme-light">
@@ -34,7 +34,12 @@
             <span class="logo">Lumina</span>
             <div class="toolbar-separator"></div>
             <div class="toolbar-group">
-                <button class="tool-btn" data-tool="bold" title="Bold"><i data-lucide="bold"></i></button>
+                <button class="tool-btn" data-tool="undo" title="Undo (Ctrl+Z)"><i data-lucide="undo-2"></i></button>
+                <button class="tool-btn" data-tool="redo" title="Redo (Ctrl+Y)"><i data-lucide="redo-2"></i></button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button class="tool-btn" data-tool="bold" title="Bold (Ctrl+B)"><i data-lucide="bold"></i></button>
                 <button class="tool-btn" data-tool="italic" title="Italic"><i data-lucide="italic"></i></button>
                 <button class="tool-btn" data-tool="underline" title="Underline"><i
                         data-lucide="underline"></i></button>

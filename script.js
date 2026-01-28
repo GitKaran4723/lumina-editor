@@ -5,7 +5,7 @@ const refreshIcons = () => window.lucide && window.lucide.createIcons();
 const md = window.markdownit({
     html: true,
     linkify: true,
-    typography: true,
+    typography: false,
     breaks: true
 });
 
@@ -19,12 +19,13 @@ function updatePreview() {
     preview.innerHTML = md.render(text);
 
     if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise([preview]);
+        window.MathJax.typesetPromise([preview]).catch(err => console.log('MathJax error:', err));
     }
 
     // Stats
     document.getElementById('char-count').textContent = `${text.length} characters`;
-    document.getElementById('word-count').textContent = `${text.trim() ? text.trim().split(/\s+/).length : 0} words`;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    document.getElementById('word-count').textContent = `${words} words`;
 }
 
 // Toolbar Logic
@@ -33,38 +34,86 @@ document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
         const tool = btn.dataset.tool;
         const start = editor.selectionStart;
         const end = editor.selectionEnd;
-        const val = editor.value;
-        const selected = val.substring(start, end);
-        let wrap = '';
+        const selected = editor.value.substring(start, end);
+
+        // Handle Undo/Redo explicitly if triggered from UI
+        if (tool === 'undo') { document.execCommand('undo', false, null); return; }
+        if (tool === 'redo') { document.execCommand('redo', false, null); return; }
+
+        let prefix = '', suffix = '', placeholder = '';
 
         switch (tool) {
-            case 'bold': wrap = `**${selected || 'bold'}**`; break;
-            case 'italic': wrap = `*${selected || 'italic'}*`; break;
-            case 'underline': wrap = `<u>${selected || 'underline'}</u>`; break;
-            case 'strikethrough': wrap = `~~${selected || 'strike'}~~`; break;
-            case 'sub': wrap = `~${selected || 'sub'}~`; break;
-            case 'sup': wrap = `^${selected || 'sup'}^`; break;
-            case 'heading': wrap = `\n## ${selected || 'Heading'}\n`; break;
-            case 'list': wrap = `\n- ${selected || 'item'}`; break;
-            case 'quote': wrap = `\n> ${selected || 'quote'}`; break;
-            case 'hr': wrap = `\n---\n`; break;
-            case 'link': wrap = `[${selected || 'text'}](http://)`; break;
-            case 'inline-math': wrap = `$${selected || 'E=mc^2'}$`; break;
-            case 'block-math': wrap = `\n$$\n${selected || 'E=mc^2'}\n$$\n`; break;
-            case 'drive-image': wrap = `![Image](https://lh3.googleusercontent.com/d/ID_HERE)`; break;
+            case 'bold': prefix = '**'; suffix = '**'; placeholder = 'bold text'; break;
+            case 'italic': prefix = '*'; suffix = '*'; placeholder = 'italic text'; break;
+            case 'underline': prefix = '<u>'; suffix = '</u>'; placeholder = 'underlined text'; break;
+            case 'strikethrough': prefix = '~~'; suffix = '~~'; placeholder = 'strikethrough'; break;
+            case 'sub': prefix = '<sub>'; suffix = '</sub>'; placeholder = 'sub'; break;
+            case 'sup': prefix = '<sup>'; suffix = '</sup>'; placeholder = 'sup'; break;
+            case 'heading': prefix = '\n## '; suffix = '\n'; placeholder = 'Heading'; break;
+            case 'list': prefix = '\n- '; suffix = ''; placeholder = 'list item'; break;
+            case 'quote': prefix = '\n> '; suffix = ''; placeholder = 'quote'; break;
+            case 'hr': prefix = '\n---\n'; suffix = ''; placeholder = ''; break;
+            case 'link': prefix = '['; suffix = '](http://)'; placeholder = 'link text'; break;
+            case 'inline-math': prefix = '$'; suffix = '$'; placeholder = 'E=mc^2'; break;
+            case 'block-math': prefix = '\n$$\n'; suffix = '\n$$\n'; placeholder = 'E=mc^2'; break;
+            case 'drive-image': prefix = '![Image](https://lh3.googleusercontent.com/d/'; suffix = ')'; placeholder = 'ID_HERE'; break;
             case 'video':
-                wrap = `\n<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;">\n    <iframe src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>\n</div>\n`;
+                prefix = `\n<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;">\n    <iframe src="https://www.youtube.com/embed/`;
+                suffix = `" frameborder="0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>\n</div>\n`;
+                placeholder = 'VIDEO_ID';
                 break;
             case 'slides':
-                wrap = `\n<div class="ppt-card" data-ppt-url="https://docs.google.com/presentation/d/SLIDE_ID/embed">\n  <div class="ppt-title">Slides Title</div>\n  <button class="ppt-open-btn">Study PPT</button>\n</div>\n`;
+                prefix = `\n<div class="ppt-card" data-ppt-url="https://docs.google.com/presentation/d/`;
+                suffix = `/embed">\n  <div class="ppt-title">Slides Title</div>\n  <button class="ppt-open-btn">Study PPT</button>\n</div>\n`;
+                placeholder = 'SLIDE_ID';
                 break;
-            case 'table': wrap = `\n| Col | Col |\n|---|---|\n| Val | Val |`; break;
+            case 'table': prefix = `\n| Col | Col |\n|---|---|\n| `; suffix = ` | Val |`; placeholder = 'Val'; break;
         }
 
-        editor.value = val.substring(0, start) + wrap + val.substring(end);
-        updatePreview();
+        const content = selected || placeholder;
+        const replacement = prefix + content + suffix;
+
         editor.focus();
+        editor.setSelectionRange(start, end);
+
+        // This method preserves the undo stack in modern browsers
+        if (!document.execCommand('insertText', false, replacement)) {
+            // Fallback for some environments
+            editor.value = editor.value.substring(0, start) + replacement + editor.value.substring(end);
+        }
+
+        // Refined selection recovery
+        if (selected) {
+            editor.setSelectionRange(start, start + replacement.length);
+        } else {
+            editor.setSelectionRange(start + prefix.length, start + prefix.length + content.length);
+        }
+
+        updatePreview();
     });
+});
+
+// Advanced Keyboard Shortcuts
+editor.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+        let tool = '';
+        const key = e.key.toLowerCase();
+
+        if (key === 'z') { if (e.shiftKey) tool = 'redo'; else tool = 'undo'; }
+        else if (key === 'y') tool = 'redo';
+        else if (key === 'b') tool = 'bold';
+        else if (key === 'i') tool = 'italic';
+        else if (key === 'u') tool = 'underline';
+        else if (key === 'h') tool = 'heading';
+        else if (key === 'k') tool = 'link';
+        else if (key === 's') { e.preventDefault(); autoSave(); return; }
+
+        if (tool) {
+            e.preventDefault();
+            const b = document.querySelector(`.tool-btn[data-tool="${tool}"]`);
+            if (b) b.click();
+        }
+    }
 });
 
 // Resizer logic
@@ -99,40 +148,6 @@ document.querySelectorAll('.view-btn[data-view]').forEach(btn => {
     });
 });
 
-// Logic for custom subscript/superscript in markdown-it
-md.inline.ruler.after('emphasis', 'subscript', (state, silent) => {
-    if (state.src.charAt(state.pos) !== '~') return false;
-    let end = state.src.indexOf('~', state.pos + 1);
-    if (end < 0) return false;
-    if (!silent) {
-        let token = state.push('sub_open', 'sub', 1);
-        token.markup = '~';
-        state.pos++;
-        state.md.inline.parse(state.src.slice(state.pos, end), state.md, state.env, state.tokens);
-        state.pos = end + 1;
-        state.push('sub_close', 'sub', -1);
-    } else {
-        state.pos = end + 1;
-    }
-    return true;
-});
-
-md.inline.ruler.after('emphasis', 'superscript', (state, silent) => {
-    if (state.src.charAt(state.pos) !== '^') return false;
-    let end = state.src.indexOf('^', state.pos + 1);
-    if (end < 0) return false;
-    if (!silent) {
-        let token = state.push('sup_open', 'sup', 1);
-        token.markup = '^';
-        state.pos++;
-        state.md.inline.parse(state.src.slice(state.pos, end), state.md, state.env, state.tokens);
-        state.pos = end + 1;
-        state.push('sup_close', 'sup', -1);
-    } else {
-        state.pos = end + 1;
-    }
-    return true;
-});
 
 // Fullscreen Logic
 const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -147,6 +162,28 @@ fullscreenBtn.addEventListener('click', () => {
         fullscreenBtn.innerHTML = '<i data-lucide="maximize"></i>';
     }
     setTimeout(refreshIcons, 10);
+});
+
+// Synchronized Scrolling
+const previewPane = document.querySelector('.preview-pane');
+
+let isScrollingEditor = false;
+let isScrollingPreview = false;
+
+editor.addEventListener('scroll', () => {
+    if (isScrollingPreview) return;
+    isScrollingEditor = true;
+    const scrollPercentage = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
+    previewPane.scrollTop = scrollPercentage * (previewPane.scrollHeight - previewPane.clientHeight);
+    setTimeout(() => { isScrollingEditor = false; }, 50);
+});
+
+previewPane.addEventListener('scroll', () => {
+    if (isScrollingEditor) return;
+    isScrollingPreview = true;
+    const scrollPercentage = previewPane.scrollTop / (previewPane.scrollHeight - previewPane.clientHeight);
+    editor.scrollTop = scrollPercentage * (editor.scrollHeight - editor.clientHeight);
+    setTimeout(() => { isScrollingPreview = false; }, 50);
 });
 
 // Copy Markdown Logic
