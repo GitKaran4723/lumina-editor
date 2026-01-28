@@ -149,9 +149,27 @@ fullscreenBtn.addEventListener('click', () => {
     setTimeout(refreshIcons, 10);
 });
 
-editor.addEventListener('input', updatePreview);
+// Auto-save Logic
+function autoSave() {
+    localStorage.setItem('lumina_notes_content', editor.value);
+    const saveStatus = document.getElementById('save-status');
+    if (saveStatus) {
+        saveStatus.textContent = 'Last saved: ' + new Date().toLocaleTimeString();
+    }
+}
+
+editor.addEventListener('input', () => {
+    updatePreview();
+    autoSave();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+    const savedContent = localStorage.getItem('lumina_notes_content');
+    if (savedContent) {
+        editor.value = savedContent;
+    }
     updatePreview();
     refreshIcons();
 });
+
 setInterval(refreshIcons, 2000);
