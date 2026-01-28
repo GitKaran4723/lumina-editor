@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina | Pro Notes Editor</title>
-    <!-- Priority Styles -->
+    <title>Lumina | Master Notes Editor</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,12 +13,9 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap"
         rel="stylesheet">
 
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <!-- Markdown Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
 
-    <!-- MathJax for LaTeX parity with target -->
     <script>
         window.MathJax = {
             tex: {
@@ -40,14 +36,28 @@
             <div class="toolbar-group">
                 <button class="tool-btn" data-tool="bold" title="Bold"><i data-lucide="bold"></i></button>
                 <button class="tool-btn" data-tool="italic" title="Italic"><i data-lucide="italic"></i></button>
+                <button class="tool-btn" data-tool="underline" title="Underline"><i
+                        data-lucide="underline"></i></button>
+                <button class="tool-btn" data-tool="strikethrough" title="Strikethrough"><i
+                        data-lucide="strikethrough"></i></button>
                 <button class="tool-btn" data-tool="heading" title="Heading"><i data-lucide="heading"></i></button>
             </div>
             <div class="toolbar-separator"></div>
             <div class="toolbar-group">
+                <button class="tool-btn" data-tool="sub" title="Subscript">A<sub>2</sub></button>
+                <button class="tool-btn" data-tool="sup" title="Superscript">A<sup>2</sup></button>
                 <button class="tool-btn" data-tool="list" title="List"><i data-lucide="list"></i></button>
                 <button class="tool-btn" data-tool="quote" title="Quote"><i data-lucide="quote"></i></button>
+                <button class="tool-btn" data-tool="hr" title="Divider"><i data-lucide="minus"></i></button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
                 <button class="tool-btn" data-tool="link" title="Link"><i data-lucide="link"></i></button>
-                <button class="tool-btn" data-tool="image" title="Image"><i data-lucide="image"></i></button>
+                <button class="tool-btn" data-tool="drive-image" title="Drive Image"><i
+                        data-lucide="image"></i></button>
+                <button class="tool-btn" data-tool="video" title="YouTube Video"><i data-lucide="video"></i></button>
+                <button class="tool-btn" data-tool="slides" title="Google Slides"><i
+                        data-lucide="presentation"></i></button>
                 <button class="tool-btn" data-tool="table" title="Table"><i data-lucide="table"></i></button>
             </div>
         </div>
@@ -56,24 +66,26 @@
             <div class="toolbar-group view-controls">
                 <button class="view-btn active" data-view="split" title="Split View"><i
                         data-lucide="columns"></i></button>
-                <button class="view-btn" data-view="edit" title="Full Editor"><i data-lucide="maximize-2"></i></button>
+                <button class="view-btn" data-view="edit" title="Full Editor"><i
+                        data-lucide="square-terminal"></i></button>
                 <button class="view-btn" data-view="preview" title="Full Preview"><i data-lucide="eye"></i></button>
+                <button class="view-btn" id="fullscreen-btn" title="Toggle Fullscreen"><i
+                        data-lucide="maximize"></i></button>
             </div>
             <div class="toolbar-separator"></div>
             <div class="toolbar-group theme-selector">
-                <button class="theme-dot light active" data-theme="light" title="Light"></button>
-                <button class="theme-dot sepia" data-theme="sepia" title="Sepia"></button>
-                <button class="theme-dot dark" data-theme="dark" title="Dark"></button>
-                <button class="theme-dot ocean" data-theme="ocean" title="Ocean"></button>
-                <button class="theme-dot forest" data-theme="forest" title="Forest"></button>
+                <button class="theme-dot light active" data-tool="theme-light" data-theme="light"></button>
+                <button class="theme-dot sepia" data-tool="theme-sepia" data-theme="sepia"></button>
+                <button class="theme-dot dark" data-tool="theme-dark" data-theme="dark"></button>
+                <button class="theme-dot ocean" data-tool="theme-ocean" data-theme="ocean"></button>
+                <button class="theme-dot forest" data-tool="theme-forest" data-theme="forest"></button>
             </div>
         </div>
     </header>
 
     <main class="editor-container split-view" id="main-container">
         <section class="pane editor-pane">
-            <textarea id="markdown-input" spellcheck="false"
-                placeholder="Start your notes... Support for LaTeX $E=mc^2$"></textarea>
+            <textarea id="markdown-input" spellcheck="false" placeholder="Start writing..."></textarea>
         </section>
         <div class="resizer" id="resizer"></div>
         <section class="pane preview-pane">
@@ -88,7 +100,11 @@
             <span id="word-count">0 words</span>
         </div>
         <div class="status-right">
-            <span>Notes Mode</span>
+            <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" class="status-link">Markdown Guide</a>
+            <span class="status-separator">|</span>
+            <a href="https://en.wikibooks.org/wiki/LaTeX/Mathematics" target="_blank" class="status-link">LaTeX Ref</a>
+            <span class="status-separator">|</span>
+            <span>Perfect Parity Mode</span>
         </div>
     </footer>
 
