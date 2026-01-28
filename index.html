@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina | Pro Notes Editor</title>
+    <!-- Priority Styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Markdown Parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+
+    <!-- MathJax for LaTeX parity with target -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body class="theme-light">
+    <header class="toolbar sticky">
+        <div class="toolbar-left">
+            <span class="logo">Lumina</span>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button class="tool-btn" data-tool="bold" title="Bold"><i data-lucide="bold"></i></button>
+                <button class="tool-btn" data-tool="italic" title="Italic"><i data-lucide="italic"></i></button>
+                <button class="tool-btn" data-tool="heading" title="Heading"><i data-lucide="heading"></i></button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button class="tool-btn" data-tool="list" title="List"><i data-lucide="list"></i></button>
+                <button class="tool-btn" data-tool="quote" title="Quote"><i data-lucide="quote"></i></button>
+                <button class="tool-btn" data-tool="link" title="Link"><i data-lucide="link"></i></button>
+                <button class="tool-btn" data-tool="image" title="Image"><i data-lucide="image"></i></button>
+                <button class="tool-btn" data-tool="table" title="Table"><i data-lucide="table"></i></button>
+            </div>
+        </div>
+
+        <div class="toolbar-right">
+            <div class="toolbar-group view-controls">
+                <button class="view-btn active" data-view="split" title="Split View"><i
+                        data-lucide="columns"></i></button>
+                <button class="view-btn" data-view="edit" title="Full Editor"><i data-lucide="maximize-2"></i></button>
+                <button class="view-btn" data-view="preview" title="Full Preview"><i data-lucide="eye"></i></button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group theme-selector">
+                <button class="theme-dot light active" data-theme="light" title="Light"></button>
+                <button class="theme-dot sepia" data-theme="sepia" title="Sepia"></button>
+                <button class="theme-dot dark" data-theme="dark" title="Dark"></button>
+                <button class="theme-dot ocean" data-theme="ocean" title="Ocean"></button>
+                <button class="theme-dot forest" data-theme="forest" title="Forest"></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="editor-container split-view" id="main-container">
+        <section class="pane editor-pane">
+            <textarea id="markdown-input" spellcheck="false"
+                placeholder="Start your notes... Support for LaTeX $E=mc^2$"></textarea>
+        </section>
+        <div class="resizer" id="resizer"></div>
+        <section class="pane preview-pane">
+            <div id="preview-output" class="markdown-body"></div>
+        </section>
+    </main>
+
+    <footer class="status-bar">
+        <div class="status-left">
+            <span id="char-count">0 characters</span>
+            <span class="status-separator">|</span>
+            <span id="word-count">0 words</span>
+        </div>
+        <div class="status-right">
+            <span>Notes Mode</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
