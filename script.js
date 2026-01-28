@@ -49,6 +49,8 @@ document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
             case 'quote': wrap = `\n> ${selected || 'quote'}`; break;
             case 'hr': wrap = `\n---\n`; break;
             case 'link': wrap = `[${selected || 'text'}](http://)`; break;
+            case 'inline-math': wrap = `$${selected || 'E=mc^2'}$`; break;
+            case 'block-math': wrap = `\n$$\n${selected || 'E=mc^2'}\n$$\n`; break;
             case 'drive-image': wrap = `![Image](https://lh3.googleusercontent.com/d/ID_HERE)`; break;
             case 'video':
                 wrap = `\n<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;">\n    <iframe src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>\n</div>\n`;
