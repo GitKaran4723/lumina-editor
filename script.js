@@ -15,8 +15,37 @@ const container = document.getElementById('main-container');
 
 // Update Preview with MathJax support
 function updatePreview() {
-    const text = editor.value;
-    preview.innerHTML = md.render(text);
+    let text = editor.value;
+
+    // Protect LaTeX blocks from markdown-it
+    const mathBlocks = [];
+    let mathIndex = 0;
+
+    // Replace $$ block math first
+    text = text.replace(/\$\$[\s\S]*?\$\$/g, (match) => {
+        const placeholder = `@@MATH_BLOCK_${mathIndex}@@`;
+        mathBlocks.push({ placeholder, original: match });
+        mathIndex++;
+        return placeholder;
+    });
+
+    // Replace $ inline math
+    text = text.replace(/\$[^\$\n]+?\$/g, (match) => {
+        const placeholder = `@@MATH_INLINE_${mathIndex}@@`;
+        mathBlocks.push({ placeholder, original: match });
+        mathIndex++;
+        return placeholder;
+    });
+
+    // Render Markdown
+    let renderedHtml = md.render(text);
+
+    // Restore LaTeX blocks
+    mathBlocks.forEach(block => {
+        renderedHtml = renderedHtml.replace(block.placeholder, block.original);
+    });
+
+    preview.innerHTML = renderedHtml;
 
     if (window.MathJax && window.MathJax.typesetPromise) {
         window.MathJax.typesetPromise([preview]).catch(err => console.log('MathJax error:', err));
