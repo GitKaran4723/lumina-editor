@@ -149,6 +149,23 @@ fullscreenBtn.addEventListener('click', () => {
     setTimeout(refreshIcons, 10);
 });
 
+// Copy Markdown Logic
+const copyBtn = document.getElementById('copy-markdown-btn');
+copyBtn.addEventListener('click', () => {
+    const markdown = editor.value;
+    navigator.clipboard.writeText(markdown).then(() => {
+        const originalContent = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
+        refreshIcons();
+        setTimeout(() => {
+            copyBtn.innerHTML = originalContent;
+            refreshIcons();
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+    });
+});
+
 // Auto-save Logic
 function autoSave() {
     localStorage.setItem('lumina_notes_content', editor.value);
