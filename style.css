@@ -82,7 +82,8 @@ body {
 
 /* Toolbar Controls */
 .toolbar {
-    height: 56px;
+    height: 64px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
